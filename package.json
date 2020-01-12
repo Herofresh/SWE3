@@ -1,0 +1,14 @@
+{
+  "name": "swe",
+  "version": "1.0.0",
+  "description": "swe",
+  "main": "server.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "andre",
+  "license": "ISC",
+  "dependencies": {
+    "mysql": "^2.17.1"
+  }
+}
