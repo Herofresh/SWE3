@@ -1,6 +1,6 @@
-const db = require("./models/index.js");
+const dog = require("./models/index.js");
 
-db.dog.create(
+dog.create(
   ["pet_name", "pet_age", "pet_sex", "desext"],
   ["Karl", "2", "male", "false"]
 );
