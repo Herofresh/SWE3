@@ -1,20 +1,35 @@
 const mysql = require("mysql");
+import { HOST, PORT, USER, PASSWORD, DB_NAME } from "./dbConfig";
+class Connection {
+  _db;
 
-const connection = mysql.createConnection({
-  host: "localhost",
-  port: 3306,
-  user: "root",
-  password: "root",
-  database: "petshop_db"
-});
+  constructor() {
+    this._db = mysql.createConnection({
+      host: HOST,
+      port: PORT,
+      user: USER,
+      password: PASSWORD
+    });
 
-connection.connect(function(err) {
-  if (err) {
-    console.error("error connecting: " + err.stack);
-    return;
+    this._db.connect(function(err) {
+      if (err) {
+        console.error("error connecting: " + err.stack);
+        return;
+      }
+      console.log("connected as id " + connection.threadId);
+      this._db.query("CREATE DATABASE IF NOT EXISTS " + DB_NAME, function(
+        err,
+        result
+      ) {
+        if (err) throw err;
+        console.log("Result: " + result);
+      });
+    });
   }
 
-  console.log("connected as id " + connection.threadId);
-});
+  get db() {
+    return this._db;
+  }
+}
 
-module.exports = connection;
+module.exports = new Connection();

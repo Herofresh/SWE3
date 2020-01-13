@@ -1,18 +1,21 @@
 const connection = require("./connection.js");
 
 class ORM {
-  constructor(table) {
+  constructor(table, cols) {
     this.table = table;
     this.cols = cols;
   }
 
-  async all() {
-    const sql = `SELECT * FROM ??`;
-
-    connection.query(sql, this.table, function(err, data) {
+  async request(statement, params) {
+    return connection.db.query(statement, params, function(err, data) {
       if (err) reject(err);
       resolve(data);
     });
+  }
+
+  async all() {
+    const sql = `SELECT * FROM ??`;
+    this.request(sql, this.table);
   }
 
   async create(cols, vals) {
@@ -21,28 +24,19 @@ class ORM {
       cols == true ? [this.table, cols, vals] : [this.table, this.cols, vals];
     sql = connection.format(sql, inserts);
 
-    connection.query(sql, function(err, data) {
-      if (err) reject(err);
-      resolve(data);
-    });
+    this.request(sql, {});
   }
 
   async update(col, value, id) {
     const sql = `UPDATE ?? SET ? = ? WHERE id = ?`;
 
-    connection.query(sql, [this.table, col, value, id], function(err, data) {
-      if (err) reject(err);
-      resolve(data);
-    });
+    this.request(sql, [this.table, col, value, id]);
   }
 
   async destroy(id) {
     const sql = `DELETE FROM ?? WHERE id = ?`;
 
-    connection.query(sql, [this.table, id], function(err, data) {
-      if (err) reject(err);
-      resolve(data);
-    });
+    this.request(sql, [this.table, id]);
   }
 
   async sync() {
@@ -55,15 +49,29 @@ class ORM {
       PRIMARY KEY (id)
     )`;
 
-    return connection.query(createTableSQL, function(err, data) {
-      if (err) reject(err);
-      resolve(data);
-    });
+    this.request(createTableSQL, {});
   }
 
-  static getColNames() {
-    return Object.keys(cols);
+  getColNames() {
+    return Object.keys(this.cols);
   }
 }
 
-module.exports = ORM;
+function dbEntity(tableName = "") {
+  return function decorator(target) {
+    return (...args) => {
+      cols = {};
+      for (const propName in Reflect.ownKeys(target)) {
+        cols[propName] = "VARCHAR(45)";
+      }
+      target.prototype.ORM = new ORM(
+        tableName ? tableName : "tbl_" + target.name,
+        cols
+      );
+      target.prototype.ORM.sync();
+      return new target(...args);
+    };
+  };
+}
+
+module.exports = { ORM: ORM, dbEntity: dbEntity };
