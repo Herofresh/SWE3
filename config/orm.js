@@ -59,16 +59,17 @@ class ORM {
 
 function dbEntity(tableName = "") {
   return function decorator(target) {
+    cols = {};
+    for (const propName in Reflect.ownKeys(target)) {
+      cols[propName] = "VARCHAR(45)";
+    }
+    target.prototype.ORM = new ORM(
+      tableName ? tableName : "tbl_" + target.name,
+      cols
+    );
+    target.prototype.ORM.sync();
     return (...args) => {
-      cols = {};
-      for (const propName in Reflect.ownKeys(target)) {
-        cols[propName] = "VARCHAR(45)";
-      }
-      target.prototype.ORM = new ORM(
-        tableName ? tableName : "tbl_" + target.name,
-        cols
-      );
-      target.prototype.ORM.sync();
+      target.prototype.ORM.create(null, ...args);
       return new target(...args);
     };
   };
