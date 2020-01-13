@@ -1,6 +1,12 @@
-const cat = require("./models/cat.js");
+const db = require("./models/index.js");
 
-create("Keyboard", 7, "female", false)
+db.dog.create(
+  ["pet_name", "pet_age", "pet_sex", "desext"],
+  ["Karl", "2", "male", "false"]
+);
+
+let allDogs = dog
+  .all()
   .then(function(data) {
     console.log(data);
   })
@@ -8,20 +14,4 @@ create("Keyboard", 7, "female", false)
     console.log(err);
   });
 
-update(true, 1)
-  .then(function(data) {
-    console.log(data);
-  })
-  .catch(function(err) {
-    console.log(err);
-  });
-
-let allTheCats = all()
-  .then(function(data) {
-    console.log(data);
-  })
-  .catch(function(err) {
-    console.log(err);
-  });
-
-console.log(`All the cats are ${allTheCats}!`);
+console.log(`All the cats are ${allDogs}!`);
