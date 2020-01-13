@@ -1,13 +1,24 @@
 {
-  "name": "swe",
-  "version": "1.0.0",
-  "description": "swe",
-  "main": "server.js",
+  "name": "liquid-logger",
+  "version": "0.1.0",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "test"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx babel src --out-dir dist",
+    "serve": "node dist/server.js",
+    "start": "babel-node src/server.js",
+    "dev": "nodemon --watch src --exec 'yarn start'"
   },
-  "author": "andre",
-  "license": "ISC",
+  "author": "Andre Rivera",
+  "license": "WTFPL",
+  "devDependencies": {
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2",
+    "@babel/node": "^7.8.0",
+    "@babel/plugin-proposal-decorators": "^7.8.0",
+    "@babel/preset-env": "^7.7.1",
+    "nodemon": "^2.0.2"
+  },
   "dependencies": {
     "mysql": "^2.17.1"
   }
