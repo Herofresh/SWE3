@@ -1,9 +1,8 @@
-import { dbEntity, BaseEntity } from "../config/orm";
+import { dbEntity } from "../config/orm";
 
-@dbEntity('DogHeaven')
-class Dog extends BaseEntity {
+@dbEntity("DogHeaven")
+class Dog {
   constructor(name, alter) {
-    super(name, alter);
     this.name = name;
     this.alter = alter;
   }
