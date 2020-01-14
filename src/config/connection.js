@@ -12,7 +12,8 @@ class Connection {
       host: HOST,
       port: PORT,
       user: USER,
-      password: PASSWORD
+      password: PASSWORD,
+      database: DB_NAME
     });
   }
   connectDB(db) {

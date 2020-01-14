@@ -18,26 +18,43 @@ export class ORM {
     });
   }
 
-  create(cols, vals) {
-    let sql = `INSERT INTO ?? (??) VALUES (?)`;
-    let inserts =
-      cols == true
-        ? [this.tableName, cols, vals]
-        : this.columDef
-        ? [this.tableName, this.columDef, vals]
-        : null;
-    if (inserts === null) {
-      console.log("Error with colum definition");
+  create(columNames, objectToCreate) {
+    if (objectToCreate instanceof this.classRef) {
+      console.log("Test:", objectToCreate);
+      let values = [];
+      for (let key in objectToCreate) {
+        if (typeof objectToCreate[key] === "object") {
+          values.push(JSON.stringify(objectToCreate[key]));
+        }
+        values.push(objectToCreate[key]);
+      }
+
+      console.log(values);
+      let sql = `INSERT INTO ?? (??) VALUES (?)`;
+      let inserts =
+        columNames == true
+          ? [this.tableName, columNames, values]
+          : this.columDef
+          ? [this.tableName, this.getColNames(), values]
+          : null;
+      if (inserts === null) {
+        console.log("Error with colum definition");
+        return;
+      }
+      sql = connection.db.format(sql, inserts);
+
+      return new Promise(function(resolve, reject) {
+        connection.db.query(sql, function(err, data) {
+          if (err) reject(err);
+          resolve(data);
+        });
+      });
+    } else {
+      console.log(
+        "ObjectTypeError: Object is not the same class as ORM Reference"
+      );
       return;
     }
-    sql = connection.format(sql, inserts);
-
-    return new Promise(function(resolve, reject) {
-      connection.db.query(sql, function(err, data) {
-        if (err) reject(err);
-        resolve(data);
-      });
-    });
   }
 
   async update(col, value, id) {
@@ -63,6 +80,10 @@ export class ORM {
   }
 
   async sync() {
+    if (this.columDef === {}) {
+      console.log("First use the addColumDef function to define the Table!");
+      return;
+    }
     const columns = cols => Object.keys(cols).map(key => `${key} ${cols[key]}`);
 
     const createTableSQL = `
@@ -88,8 +109,38 @@ export class ORM {
     this.columDef[colName] = columDef;
   }
 
-  addColumDef(fullTableDefinition) {
+  addFullColumDef(fullTableDefinition) {
     this.columDef = fullTableDefinition;
+  }
+
+  syncColumDef(objectInstance) {
+    if (objectInstance instanceof this.classRef) {
+      this.columDef = {};
+      for (let key in objectToCreate) {
+        switch (typeof objectInstance[key]) {
+          case "string":
+            this.columDef[key] = "VARCHAR(30) NULL";
+            break;
+          case "boolean":
+            this.columDef[key] = "TINYINT NULL";
+            break;
+          case "number":
+            this.columDef[key] = "DECIMAL NULL";
+            break;
+          case "symbol":
+            this.columDef[key] = "VARCHAR(1) NULL";
+            break;
+          case "object":
+            this.columDef[key] = "JSON NULL";
+            break;
+          default:
+            break;
+        }
+      }
+    } else {
+      console.log("Object does not match the used class!");
+      return;
+    }
   }
 }
 
