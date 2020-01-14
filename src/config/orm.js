@@ -20,16 +20,16 @@ export class ORM {
 
   create(columNames, objectToCreate) {
     if (objectToCreate instanceof this.classRef) {
-      console.log("Test:", objectToCreate);
       let values = [];
       for (let key in objectToCreate) {
         if (typeof objectToCreate[key] === "object") {
           values.push(JSON.stringify(objectToCreate[key]));
+        } else {
+          values.push(objectToCreate[key]);
         }
-        values.push(objectToCreate[key]);
       }
 
-      console.log(values);
+      console.log("VALUES:", values);
       let sql = `INSERT INTO ?? (??) VALUES (?)`;
       let inserts =
         columNames == true
@@ -93,6 +93,8 @@ export class ORM {
       PRIMARY KEY (id)
     )`;
 
+    console.log(createTableSQL);
+
     return new Promise(function(resolve, reject) {
       connection.db.query(createTableSQL, function(err, data) {
         if (err) reject(err);
@@ -116,7 +118,7 @@ export class ORM {
   syncColumDef(objectInstance) {
     if (objectInstance instanceof this.classRef) {
       this.columDef = {};
-      for (let key in objectToCreate) {
+      for (let key in objectInstance) {
         switch (typeof objectInstance[key]) {
           case "string":
             this.columDef[key] = "VARCHAR(30) NULL";

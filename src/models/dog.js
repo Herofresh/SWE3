@@ -4,7 +4,8 @@ import { dbEntity } from "../config/orm";
 class Dog {
   constructor(name, alter) {
     this.name = name;
-    this.alter = alter;
+    this.age = alter;
+    this.gay = { hallo: "Hi", hi: "Hallo" };
   }
 }
 

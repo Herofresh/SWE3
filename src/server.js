@@ -9,11 +9,15 @@ console.log(bello, yello, catto);
 console.log("DogObject:", Dog.ORM);
 console.log("CatObject:", Cat.ORM);
 
-Dog.ORM.addColumDef("name", "VARCHAR(30) NOT NULL");
-Dog.ORM.addColumDef("age", "INTEGER(2) NOT NULL");
+Dog.ORM.syncColumDef(bello);
 
 Dog.ORM.sync();
 console.log("Type Bello:", bello instanceof Dog);
 Dog.ORM.create(null, bello);
 
 console.log("DogObject:", Dog.ORM);
+
+Cat.ORM.syncColumDef(catto);
+console.log("CatObject:", Cat.ORM);
+Cat.ORM.sync();
+Cat.ORM.create(null, catto);

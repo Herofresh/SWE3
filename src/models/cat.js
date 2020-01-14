@@ -4,7 +4,7 @@ import { dbEntity } from "../config/orm";
 class Cat {
   constructor(name, alter, muster) {
     this.name = name;
-    this.alter = alter;
+    this.age = alter;
     this.muster = muster;
   }
 }
