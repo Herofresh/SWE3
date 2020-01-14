@@ -1,23 +1,22 @@
 import Dog from "./models/dog";
 import Cat from "./models/cat";
 
-const bello = new Dog("bitch", 45);
-const yello = new Dog("hoe", 45);
+const bello = new Dog({
+  name: "bitch",
+  age: 45,
+  crazy: false,
+  fuck: { gay: "yap" }
+});
 const catto = new Cat("catto", 12, "grau");
 
-console.log(bello, yello, catto);
-console.log("DogObject:", Dog.ORM);
+console.log(bello, catto);
 console.log("CatObject:", Cat.ORM);
 
 Dog.ORM.syncColumDef(bello);
-
 Dog.ORM.sync();
-console.log("Type Bello:", bello instanceof Dog);
+console.log("DogObject:", Dog.ORM);
 Dog.ORM.create(null, bello);
 
-console.log("DogObject:", Dog.ORM);
-
-Cat.ORM.syncColumDef(catto);
-console.log("CatObject:", Cat.ORM);
-Cat.ORM.sync();
-Cat.ORM.create(null, catto);
+let dogs = Dog.ORM.allObjects().then(data => {
+  console.log("DATA", data);
+});

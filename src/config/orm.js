@@ -8,14 +8,25 @@ export class ORM {
   }
 
   all() {
-    const sql = `SELECT * FROM ??`;
+    let sql = `SELECT * FROM ??`;
+    sql = connection.db.format(sql, this.tableName);
 
     return new Promise(function(resolve, reject) {
-      connection.db.query(sql, this.tableName, function(err, data) {
+      connection.db.query(sql, function(err, data) {
         if (err) reject(err);
         resolve(data);
       });
     });
+  }
+
+  async allObjects() {
+    let returnValue = [];
+    const values = await this.all();
+    for (let key in values) {
+      returnValue.push(new this.classRef(values[key]));
+    }
+    console.log(returnValue);
+    return returnValue;
   }
 
   create(columNames, objectToCreate) {
