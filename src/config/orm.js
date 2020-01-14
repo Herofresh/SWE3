@@ -25,7 +25,6 @@ export class ORM {
     for (let key in values) {
       returnValue.push(new this.classRef(values[key]));
     }
-    console.log(returnValue);
     return returnValue;
   }
 
@@ -40,7 +39,6 @@ export class ORM {
         }
       }
 
-      console.log("VALUES:", values);
       let sql = `INSERT INTO ?? (??) VALUES (?)`;
       let inserts =
         columNames == true
@@ -69,10 +67,10 @@ export class ORM {
   }
 
   async update(col, value, id) {
-    const sql = `UPDATE ?? SET ? = ? WHERE id = ?`;
-
+    let sql = `UPDATE ?? SET ? = ? WHERE id = ?`;
+    sql = connection.db.format(sql, [this.tableName, col, value, id]);
     return new Promise(function(resolve, reject) {
-      connection.db.query(sql, [table, col, value, id], function(err, data) {
+      connection.db.query(sql, function(err, data) {
         if (err) reject(err);
         resolve(data);
       });
@@ -80,10 +78,11 @@ export class ORM {
   }
 
   async destroy(id) {
-    const sql = `DELETE FROM ?? WHERE id = ?`;
+    let sql = `DELETE FROM ?? WHERE id = ?`;
+    sql = connection.db.format(sql, [this.tableName, id]);
 
     return new Promise(function(resolve, reject) {
-      connection.db.query(sql, [this.tableName, id], function(err, data) {
+      connection.db.query(sql, function(err, data) {
         if (err) reject(err);
         resolve(data);
       });

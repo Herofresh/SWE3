@@ -20,3 +20,5 @@ Dog.ORM.create(null, bello);
 let dogs = Dog.ORM.allObjects().then(data => {
   console.log("DATA", data);
 });
+
+Dog.ORM.destroy(1);
