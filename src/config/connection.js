@@ -2,18 +2,32 @@ import { createConnection } from "mysql";
 import { HOST, PORT, USER, PASSWORD, DB_NAME } from "./dbConfig";
 class Connection {
   constructor() {
-    this._db = this.setConnection();
-    this.connectDB(this._db);
-    this.createDB(this._db);
+    try {
+      this._db = this.setConnectionNoDb();
+      this.connectDB(this._db);
+      this.createDB(this._db);
+    } catch (error) {
+      this._db = this.setConnectionWithDb();
+      this.connectDB(this._db);
+      this.createDB(this._db);
+    }
   }
 
-  setConnection() {
+  setConnectionWithDb() {
     return createConnection({
       host: HOST,
       port: PORT,
       user: USER,
       password: PASSWORD,
       database: DB_NAME
+    });
+  }
+  setConnectionNoDb() {
+    return createConnection({
+      host: HOST,
+      port: PORT,
+      user: USER,
+      password: PASSWORD
     });
   }
   connectDB(db) {

@@ -19,9 +19,30 @@ export class ORM {
     });
   }
 
+  select(colum, value) {
+    let sql = `SELECT * FROM ?? WHERE ? = ?`;
+    sql = connection.db.format(sql, [this.tableName, colum, value]);
+
+    return new Promise(function(resolve, reject) {
+      connection.db.query(sql, function(err, data) {
+        if (err) reject(err);
+        resolve(data);
+      });
+    });
+  }
+
   async allObjects() {
     let returnValue = [];
     const values = await this.all();
+    for (let key in values) {
+      returnValue.push(new this.classRef(values[key]));
+    }
+    return returnValue;
+  }
+
+  async selectObjects(colum, value) {
+    let returnValue = [];
+    const values = await this.select(colum, value);
     for (let key in values) {
       returnValue.push(new this.classRef(values[key]));
     }
