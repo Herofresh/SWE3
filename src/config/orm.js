@@ -5,6 +5,9 @@ export class ORM {
     this.tableName = tableName;
     this.classRef = classRef;
     this.columDef = {};
+    this.relationships = [];
+    this.relationSet = false;
+    this.serializer = new Serializer([]);
   }
 
   all() {
@@ -146,34 +149,93 @@ export class ORM {
     this.columDef = fullTableDefinition;
   }
 
+  addOneToNRelationDefinition(classRef) {
+    if (!this.relationSet) {
+      this.createMetaDataTable();
+      this.relationSet = true;
+    }
+    this.serializer.addType(classRef);
+  }
+
+  addRelation(object) {}
+
+  createMetaDataTable() {
+    const createTableSQL = `
+    CREATE TABLE IF NOT EXISTS ${this.tableName}_meta (
+      id INT AUTO_INCREMENT NOT NULL,
+      typeref JSON NOT NULL,
+      tablename VARCHAR(30) NOT NULL,
+      PRIMARY KEY (id)
+    )`;
+
+    console.log(createTableSQL);
+
+    return new Promise(function(resolve, reject) {
+      connection.db.query(createTableSQL, function(err, data) {
+        if (err) reject(err);
+        resolve(data);
+      });
+    });
+  }
+
   syncColumDef(objectInstance) {
     if (objectInstance instanceof this.classRef) {
-      this.columDef = {};
-      for (let key in objectInstance) {
-        switch (typeof objectInstance[key]) {
-          case "string":
-            this.columDef[key] = "VARCHAR(30) NULL";
-            break;
-          case "boolean":
-            this.columDef[key] = "TINYINT NULL";
-            break;
-          case "number":
-            this.columDef[key] = "DECIMAL NULL";
-            break;
-          case "symbol":
-            this.columDef[key] = "VARCHAR(1) NULL";
-            break;
-          case "object":
-            this.columDef[key] = "JSON NULL";
-            break;
-          default:
-            break;
-        }
-      }
+      this.columDef = this.getColumGeneration(objectInstance);
     } else {
       console.log("Object does not match the used class!");
       return;
     }
+  }
+
+  getColumGeneration(objectInstance) {
+    let returnValue = {};
+    for (let key in objectInstance) {
+      switch (typeof objectInstance[key]) {
+        case "string":
+          returnValue[key] = "VARCHAR(30) NULL";
+          break;
+        case "boolean":
+          returnValue[key] = "TINYINT NULL";
+          break;
+        case "number":
+          returnValue[key] = "DECIMAL NULL";
+          break;
+        case "symbol":
+          returnValue[key] = "VARCHAR(1) NULL";
+          break;
+        case "object":
+          returnValue[key] = "JSON NULL";
+          break;
+        default:
+          break;
+      }
+    }
+    return returnValue;
+  }
+}
+
+class Serializer {
+  constructor(types) {
+    this.types = types;
+  }
+  addType(type) {
+    this.types.push(type);
+  }
+  serialize(object) {
+    let idx = this.types.findIndex(e => {
+      return e.name == object.constructor.name;
+    });
+    if (idx == -1)
+      throw "type  '" + object.constructor.name + "' not initialized";
+    return JSON.stringify([idx, Object.entries(object)]);
+  }
+  deserialize(jstring) {
+    let array = JSON.parse(jstring);
+    let object = new this.types[array[0]]();
+    array[1].map(e => {
+      object[e[0]] = e[1];
+    });
+    return object;
   }
 }
 
